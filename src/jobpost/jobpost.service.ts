@@ -51,6 +51,9 @@ export class JobPostService {
       }
     }
 
+    // Add sorting by creation date in descending order
+    query.orderBy('jobPost.createdAt', 'DESC');
+
     return await query.getMany();
   }
 
@@ -98,6 +101,7 @@ export class JobPostService {
           keyword: `%${keyword}%`,
         },
       )
+      .orderBy('jobPost.createdAt', 'DESC')
       .getMany();
   }
 
@@ -111,6 +115,7 @@ export class JobPostService {
       .where('jobPost.deadline <= :sevenDaysFromNow', { sevenDaysFromNow })
       .andWhere('jobPost.deadline > :now', { now: new Date() })
       .andWhere('jobPost.isActive = :isActive', { isActive: true })
+      .orderBy('jobPost.deadline', 'ASC')
       .getMany();
   }
 
@@ -139,6 +144,58 @@ export class JobPostService {
         maxSalary,
       })
       .andWhere('jobPost.isActive = :isActive', { isActive: true })
+      .orderBy('jobPost.createdAt', 'DESC')
       .getMany();
+  }
+
+  // Get job statistics
+  async getStats() {
+    const totalJobs = await this.jobPostRepository.count();
+    const activeJobs = await this.jobPostRepository.count({ where: { isActive: true } });
+
+    // Get counts by job type
+    const jobTypeCounts = await this.jobPostRepository
+      .createQueryBuilder('jobPost')
+      .select('jobPost.jobType', 'jobType')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('jobPost.jobType')
+      .getRawMany();
+
+    // Get counts by department
+    const departmentCounts = await this.jobPostRepository
+      .createQueryBuilder('jobPost')
+      .select('jobPost.department', 'department')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('jobPost.department')
+      .getRawMany();
+
+    // Get counts by status
+    const statusCounts = await this.jobPostRepository
+      .createQueryBuilder('jobPost')
+      .select('jobPost.isActive', 'isActive')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('jobPost.isActive')
+      .getRawMany();
+
+    return {
+      totalJobs,
+      activeJobs,
+      byJobType: jobTypeCounts.reduce((acc, curr) => {
+        if (curr.jobType) {
+          acc[curr.jobType] = parseInt(curr.count);
+        }
+        return acc;
+      }, {}),
+      byDepartment: departmentCounts.reduce((acc, curr) => {
+        if (curr.department) {
+          acc[curr.department] = parseInt(curr.count);
+        }
+        return acc;
+      }, {}),
+      byStatus: statusCounts.reduce((acc, curr) => {
+        acc[curr.isActive ? 'Active' : 'Inactive'] = parseInt(curr.count);
+        return acc;
+      }, {}),
+    };
   }
 }

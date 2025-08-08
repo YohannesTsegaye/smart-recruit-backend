@@ -33,7 +33,6 @@ export class JobPost {
 
   @Column()
   experience!: string;
-
   @Column('decimal', { precision: 10, scale: 2 })
   salary!: number;
 
@@ -43,14 +42,14 @@ export class JobPost {
   @Column({ default: true })
   isActive!: boolean;
 
-  @Column('simple-array', { nullable: true })
-  requirements!: string[];
+  @Column('text', { array: true, nullable: true })
+  requirements: string[] = []; // Initialize with empty array
 
-  @Column('simple-array', { nullable: true })
-  responsibilities!: string[];
+  @Column('text', { array: true, nullable: true })
+  responsibilities: string[] = []; // Initialize with empty array
 
-  @Column('simple-array', { nullable: true })
-  skills!: string[];
+  @Column('text', { array: true, nullable: true })
+  skills: string[] = []; // Initialize with empty arrayy
 
   @CreateDateColumn()
   createdAt!: Date;

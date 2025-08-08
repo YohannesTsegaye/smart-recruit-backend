@@ -5,9 +5,16 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  //accept the data
-  app.enableCors();
 
-  await app.listen(process.env.APP_PORT ?? 3000);
+  // Configure CORS to allow requests from the frontend
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:5174'], // Allow both ports
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Accept', 'X-Debug', 'Authorization'],
+    credentials: true,
+  });
+
+  // Use port 5000 to match the frontend's expectation
+  await app.listen(5000);
 }
 void bootstrap();
