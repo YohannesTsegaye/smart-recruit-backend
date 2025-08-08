@@ -1,98 +1,286 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Smart Recruit Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS-based backend API for the Smart Recruit job application system.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- User authentication and authorization (JWT)
+- Candidate management
+- Job posting management
+- Email notifications
+- File upload handling
+- Role-based access control
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- **Framework**: NestJS
+- **Database**: PostgreSQL with TypeORM
+- **Authentication**: JWT with Passport
+- **Email**: Nodemailer
+- **File Upload**: Multer
+- **Validation**: Class-validator
 
+## Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL
+- npm or yarn
+
+## Installation
+
+1. Clone the repository:
 ```bash
-$ npm install
+git clone https://github.com/yourusername/backend.git
+cd backend
 ```
 
-## Compile and run the project
-
+2. Install dependencies:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
+
+4. Configure your `.env` file:
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+DB_DATABASE=smart_recruit
+
+# JWT
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=24h
+
+# Email
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+
+# Server
+PORT=3001
+NODE_ENV=development
+```
+
+5. Run database migrations:
+```bash
+npm run migration:run
+```
+
+6. Start the development server:
+```bash
+npm run start:dev
+```
+
+The API will be available at `http://localhost:3001`
+
+## API Documentation
+
+### Authentication Endpoints
+
+#### POST /auth/login
+Login with email and password.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "access_token": "jwt_token_here",
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "role": "admin"
+  }
+}
+```
+
+#### POST /auth/forgot-password
+Request password reset.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+#### POST /auth/reset-password
+Reset password with token.
+
+**Request Body:**
+```json
+{
+  "token": "reset_token_here",
+  "password": "new_password123"
+}
+```
+
+### User Management
+
+#### GET /users
+Get all users (Admin only)
+
+#### POST /users
+Create new user (Admin only)
+
+#### PUT /users/:id
+Update user
+
+#### DELETE /users/:id
+Delete user (Admin only)
+
+### Candidate Management
+
+#### GET /candidates
+Get all candidates with filters
+
+**Query Parameters:**
+- `status`: Filter by status
+- `department`: Filter by department
+- `page`: Page number
+- `limit`: Items per page
+
+#### POST /candidates
+Create new candidate
+
+#### GET /candidates/:id
+Get candidate by ID
+
+#### PUT /candidates/:id
+Update candidate
+
+#### PUT /candidates/:id/status
+Update candidate status
+
+**Request Body:**
+```json
+{
+  "status": "interview_scheduled",
+  "scheduledDateTime": "2024-01-15T10:00:00Z"
+}
+```
+
+### Job Posting Management
+
+#### GET /jobpost
+Get all job postings
+
+#### POST /jobpost
+Create new job posting (Admin only)
+
+#### GET /jobpost/:id
+Get job posting by ID
+
+#### PUT /jobpost/:id
+Update job posting (Admin only)
+
+#### DELETE /jobpost/:id
+Delete job posting (Admin only)
+
+### File Upload
+
+#### POST /upload
+Upload candidate resume
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Body:** FormData with file
+
+## Development
+
+### Available Scripts
+
+- `npm run start:dev` - Start development server with hot reload
+- `npm run build` - Build the application
+- `npm run start:prod` - Start production server
+- `npm run test` - Run unit tests
+- `npm run test:e2e` - Run end-to-end tests
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+
+### Database Migrations
 
 ```bash
-# unit tests
-$ npm run test
+# Generate migration
+npm run migration:generate -- src/database/migrations/MigrationName
 
-# e2e tests
-$ npm run test:e2e
+# Run migrations
+npm run migration:run
 
-# test coverage
-$ npm run test:cov
+# Revert migration
+npm run migration:revert
 ```
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_HOST` | Database host | localhost |
+| `DB_PORT` | Database port | 5432 |
+| `DB_USERNAME` | Database username | - |
+| `DB_PASSWORD` | Database password | - |
+| `DB_DATABASE` | Database name | smart_recruit |
+| `JWT_SECRET` | JWT secret key | - |
+| `JWT_EXPIRES_IN` | JWT expiration time | 24h |
+| `EMAIL_HOST` | SMTP host | - |
+| `EMAIL_PORT` | SMTP port | 587 |
+| `EMAIL_USER` | Email username | - |
+| `EMAIL_PASS` | Email password | - |
+| `PORT` | Server port | 3001 |
+| `NODE_ENV` | Environment | development |
+
+## CORS Configuration
+
+The API is configured to accept requests from the frontend domain. Update the CORS settings in `src/main.ts` for production deployment.
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Heroku
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. Create a new Heroku app
+2. Add PostgreSQL addon
+3. Set environment variables
+4. Deploy using Git
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+heroku create your-app-name
+heroku addons:create heroku-postgresql
+heroku config:set NODE_ENV=production
+git push heroku main
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Docker
 
-## Resources
+```bash
+# Build image
+docker build -t smart-recruit-backend .
 
-Check out a few resources that may come in handy when working with NestJS:
+# Run container
+docker run -p 3001:3001 smart-recruit-backend
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Contributing
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License.
